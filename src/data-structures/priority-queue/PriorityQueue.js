@@ -1,98 +1,69 @@
-import MinHeap from '../heap/MinHeap';
-import Comparator from '../../utils/comparator/Comparator';
+export default class PriorityQueue {
 
-// It is the same as min heap except that when comparing two elements
-// we take into account its priority instead of the element's value.
-export default class PriorityQueue extends MinHeap {
   constructor() {
-    // Call MinHip constructor first.
-    super();
-
-    // Setup priorities map.
-    this.priorities = new Map();
-
-    // Use custom comparator for heap elements that will take element priority
-    // instead of element value into account.
-    this.compare = new Comparator(this.comparePriority.bind(this));
+    this.queue = [];
   }
 
-  /**
-   * Add item to the priority queue.
-   * @param {*} item - item we're going to add to the queue.
-   * @param {number} [priority] - items priority.
-   * @return {PriorityQueue}
-   */
-  add(item, priority = 0) {
-    this.priorities.set(item, priority);
-    super.add(item);
-    return this;
-  }
-
-  /**
-   * Remove item from priority queue.
-   * @param {*} item - item we're going to remove.
-   * @param {Comparator} [customFindingComparator] - custom function for finding the item to remove
-   * @return {PriorityQueue}
-   */
-  remove(item, customFindingComparator) {
-    super.remove(item, customFindingComparator);
-    this.priorities.delete(item);
-    return this;
-  }
-
-  /**
-   * Change priority of the item in a queue.
-   * @param {*} item - item we're going to re-prioritize.
-   * @param {number} priority - new item's priority.
-   * @return {PriorityQueue}
-   */
-  changePriority(item, priority) {
-    this.remove(item, new Comparator(this.compareValue));
-    this.add(item, priority);
-    return this;
-  }
-
-  /**
-   * Find item by ite value.
-   * @param {*} item
-   * @return {Number[]}
-   */
-  findByValue(item) {
-    return this.find(item, new Comparator(this.compareValue));
-  }
-
-  /**
-   * Check if item already exists in a queue.
-   * @param {*} item
-   * @return {boolean}
-   */
-  hasValue(item) {
-    return this.findByValue(item).length > 0;
-  }
-
-  /**
-   * Compares priorities of two items.
-   * @param {*} a
-   * @param {*} b
-   * @return {number}
-   */
-  comparePriority(a, b) {
-    if (this.priorities.get(a) === this.priorities.get(b)) {
-      return 0;
+    isEmpty() {
+      return this.queue.length === 0
     }
-    return this.priorities.get(a) < this.priorities.get(b) ? -1 : 1;
-  }
 
-  /**
-   * Compares values of two items.
-   * @param {*} a
-   * @param {*} b
-   * @return {number}
-   */
-  compareValue(a, b) {
-    if (a === b) {
-      return 0;
+    peek() {
+      if (this.isEmpty()) {
+        return null
+      } else 
+      return this.queue[0].value
     }
-    return a < b ? -1 : 1;
-  }
+
+    add(value, priority) {
+      const element = {value, priority}
+      if(this.isEmpty()) {
+        this.queue.unshift(element);
+        return
+      } else {
+        for(let i = 0; i < this.queue.length; i++) {
+          if (priority < this.queue[i].priority) {
+            this.queue.splice(i, 0, element)
+            return
+          }
+        }
+      } 
+      this.queue.push(element)
+    }
+
+    changePriority(value ,newPriority) {
+      if(this.isEmpty()) {
+        return undefined
+      }
+      for(let i = 0; i < this.queue.length; i++) {
+        if (this.queue[i].value === value) {
+          this.queue[i].priority = newPriority;
+          const changedElement = this.queue[i].value;
+          this.queue.splice(i, 1);
+          this.add(changedElement, newPriority);
+          return
+        } 
+      }
+      return undefined
+    }
+
+    poll() {
+      const firstElement = this.queue[0].value;
+      this.queue.shift();
+      return firstElement
+    }
+
+    hasValue(value) {
+      if(this.isEmpty()) {
+        return false
+      } else {
+        for (let i = 0; i < this.queue.length; i++) {
+          if (this.queue[i].  value === value) {
+            return true
+          }
+        }
+        return false
+      } 
+    }
+
 }
